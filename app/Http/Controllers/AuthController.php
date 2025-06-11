@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -14,10 +15,15 @@ class AuthController extends Controller
 
         // validate
         $fields = $request->validate([
+            'avatar' => ['file', 'nullable', 'max:300'],
             'name' => ['required', 'max:225'],
             'email' => ['required', 'email', 'max:225', 'unique:users'],
             'password' => ['required', 'confirmed']
         ]);
+
+        if ($request->hasFile('avatar')) {
+            $fields['avatar'] = Storage::disk('public')->put('avatars', $request->avatar);
+        }
 
         // register
         $user = User::create($fields);
