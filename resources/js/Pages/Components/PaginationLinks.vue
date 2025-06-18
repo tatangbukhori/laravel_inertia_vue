@@ -10,7 +10,7 @@
         if (label.includes("Previous")) {
             return "<<";
         } else if (label.includes("Next")) {
-            return "<<";
+            return ">>";
         } else {
             return label;
         }
