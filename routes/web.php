@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (Request $request) {
@@ -13,7 +14,11 @@ Route::get('/', function (Request $request) {
                 ->orWhere('email', 'like', '%' . $request->search . '%');
         })->paginate(5)->withQueryString(),
 
-        'searchTerm' => $request->search
+        'searchTerm' => $request->search,
+
+        'can' => [
+            'delete_user' => Auth::user() ? Auth::user()->can('delete', User::class) : null
+        ]
     ]);
 })->name('home');
 
@@ -24,8 +29,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('guest')->group(function () {
-    Route::inertia('/register', 'Auth/Register')->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::inertia('/register', 'Auth/NewAdmin')->name('register');
+    Route::post('/register', [AuthController::class, 'new_admin']);
+
+    // Process
+    // Route::inertia('/new-admin', 'Auth/NewAdmin')->name('register');
+    // Route::post('/new-admin', [AuthController::class, 'new_admin']);
 
     Route::inertia('/login', 'Auth/Login')->name('login');
     Route::post('/login', [AuthController::class, 'login']);
